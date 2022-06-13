@@ -1,0 +1,64 @@
+#!groovy
+pipeline {
+	agent { node { label "build01"
+		}
+	}
+	
+
+	stages{
+		stage("GetCode") {
+			steps{
+				timeout(time:5, unit: "MINUTES"){
+					script{
+						checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: '3b3ce2a3-af9c-46bc-8b2a-81a9aef7f250', url: 'https://gitee.com/john5/jeesns.git']]])
+					}
+				}
+			}
+		}
+	
+		stage("Build") {
+			steps{
+				timeout(time:5, unit: "MINUTES"){
+					script{
+						println('应用打包')
+					}
+				}
+			}
+		}
+		stage("CodeScan") {
+			steps{
+				timeout(time:5, unit: "MINUTES"){
+					script{
+						println('代码扫描')
+					}
+				}
+			}
+		}		
+		
+	}
+	post {
+		always {
+			script{
+				println("always")
+			}
+		}
+		success {
+			script {
+				currentBuild.description = "\n 构建成功!"
+				
+			}
+		}
+		failure {
+			script {
+				currentBuild.description = "\n 构建失败!"
+				
+			}
+		}
+		aborted {
+			script {
+				currentBuild.description = "\n 构建取消!"
+				
+			}
+		}
+	}
+}
